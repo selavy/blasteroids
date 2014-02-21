@@ -13,6 +13,7 @@
 #define DEGREES(x) ((x)*(2*ALLEGRO_PI)/180.0f)
 #define ALIVE 0
 #define DEAD 1
+#define MAX_DEG 180
 
 
 #endif

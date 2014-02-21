@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "general.h"
 #include "spaceship.h"
+#include "asteroid.h"
 #include "blast.h"
 
 enum MYKEYS {
@@ -85,6 +86,7 @@ int main(int argc, char **argv) {
 	  blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
 	}
 	blast_move();
+	asteroid_move();
 	redraw = true;
       }
       else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -92,6 +94,7 @@ int main(int argc, char **argv) {
       }
       else if((ev.type == ALLEGRO_EVENT_KEY_DOWN) ||
 	      (ev.type == ALLEGRO_EVENT_KEY_UP)) {
+	asteroid_add();
 	switch(ev.keyboard.keycode) {
 	case ALLEGRO_KEY_UP:
 	  key[KEY_UP] ^= 1;
@@ -117,12 +120,14 @@ int main(int argc, char **argv) {
 	al_clear_to_color(al_map_rgb(0,0,0));
 	spaceship_draw(spaceship);
 	blast_draw();
+	asteroid_draw();
 	al_flip_display();
       }
     }
 
   spaceship_destroy(spaceship);
   blast_destroy();
+  asteroid_destroy();
   al_destroy_timer(timer);
   al_destroy_display(display);
   al_destroy_event_queue(event_queue);

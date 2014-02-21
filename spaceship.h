@@ -21,7 +21,6 @@ enum SHIP_MOVE {
 
 #define TURN_SPEED 5.0f
 #define MOVEMENT_SPEED 5.0f
-#define MAX_DEG 180
 #define SHIP_H 20
 #define SHIP_W 16
 #define SHIP_R 8

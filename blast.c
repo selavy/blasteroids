@@ -55,6 +55,7 @@ static void draw(Blast * blast) {
 }
 
 static void add( Blast * blast ) {
+  if(!blast) return;
   if( list == NULL ) {
     list = malloc(sizeof(*list));
     if(!list) {
@@ -81,28 +82,31 @@ static void add( Blast * blast ) {
 
 void blast_fire(float sx, float sy, float heading) {
   Blast * blast = blast_create( sx, sy, heading );
-  add( blast );
+  add(blast);
 }
 
 void blast_destroy() {
   blist * n = list;
-  while( n != NULL ) {
-    destroy( n->blast );
-    n = n->next;
+  blist * t;
+  while(n != NULL) {
+    destroy(n->blast);
+    t = n->next;
+    free(n);
+    n = t;
   }
 }
 
 void blast_move() {
   blist * n = list;
-  while( n != NULL ) {
-    if(!move( n->blast )) {
+  while(n != NULL) {
+    if(!move(n->blast)) {
       blist * tmp = n->next;
       /* if n is the head of the list, reset list to n->next */
-      if( list == n ) list = n->next;
-      destroy( n->blast );
+      if(list == n) list = n->next;
+      destroy(n->blast);
       if(n->prev) n->prev->next = n->next;
       if(n->next) n->next->prev = n->prev;
-      free( n );
+      free(n);
       n = tmp;
     }
     else n = n->next;
@@ -111,8 +115,8 @@ void blast_move() {
 
 void blast_draw() {
   blist * n = list;
-  while( n != NULL ) {
-    draw( n->blast );
+  while(n != NULL) {
+    draw(n->blast);
     n = n->next;
   }
 }

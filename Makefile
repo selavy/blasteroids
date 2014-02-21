@@ -4,7 +4,7 @@ ALLEGRO = -lallegro
 PRIMITIVES = -lallegro_primitives
 LIBS = $(ALLEGRO) $(PRIMITIVES)
 
-OBJS = blasteroids.o spaceship.o blast.o
+OBJS = blasteroids.o spaceship.o blast.o asteroid.o
 HEADERS = general.h
 
 blaseroids: $(OBJS) $(HEADERS)
