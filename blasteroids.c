@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
   bool doexit = false;
   bool redraw = false;
   bool immortal = false;
+  bool ship_color = false;
   int immortal_counter = 0;
   int asteroid_counter = 0;
   float asteroid_rate = FPS/2.0f;
@@ -134,6 +135,13 @@ int main(int argc, char **argv) {
 	    if(immortal_counter >= FPS*5) {
 	      spaceship->color = al_map_rgb(255, 255, 255);
 	      immortal = false;
+	    } else if( immortal_counter >= FPS*4) {
+	      if(ship_color) {
+		spaceship->color = al_map_rgb(255,255,255);
+	      } else {
+		spaceship->color = al_map_rgb(255,0,0);
+	      }
+	      ship_color ^= true;
 	    }
 	  }
 
@@ -145,7 +153,8 @@ int main(int argc, char **argv) {
 
 	  increase_rate_counter++;
 	  if(increase_rate_counter > FPS*10) {
-	    asteroid_rate /= 2;
+	    asteroid_rate *= 0.9;
+	    increase_rate_counter = 0;
 	  }
 
 	  blast_move();
@@ -193,10 +202,10 @@ int main(int argc, char **argv) {
 	    if(asteroid_check_collision(spaceship->sx, spaceship->sy) == HIT) {
 	      lose_life();
 	      immortal = true;
-	      spaceship->color = al_map_rgb(255, 0, 0);
 	      immortal_counter = 0;
 	      spaceship_destroy(spaceship);
 	      spaceship = spaceship_create();
+	      spaceship->color = al_map_rgb(255, 0, 0);
 	    }
 	  }
 
