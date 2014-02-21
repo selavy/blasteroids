@@ -5,6 +5,8 @@
 #include <math.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
 #define SCREEN_W 640
 #define SCREEN_H 480

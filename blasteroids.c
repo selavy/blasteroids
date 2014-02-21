@@ -3,8 +3,6 @@
 #include "spaceship.h"
 #include "asteroid.h"
 #include "blast.h"
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
 
 #define MAX_STR_LEN 256
 #define MAX_LIVES 3
