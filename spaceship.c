@@ -35,9 +35,9 @@ void spaceship_move(Spaceship * ship, enum SHIP_MOVE heading) {
   if(!ship) return;
 
   if(heading == UP) {
-    float theta = DEGREES(ship->heading);
-    float delta_x = MOVEMENT_SPEED * sin(theta);
-    float delta_y = -1 * MOVEMENT_SPEED * cos(theta);
+    const float theta = DEGREES(ship->heading);
+    const float delta_x = MOVEMENT_SPEED * sin(theta);
+    const float delta_y = -1 * MOVEMENT_SPEED * cos(theta);
 
     if( delta_x <= 0 ) {
       ship->sx = (ship->sx >= -1 * delta_x) ? ship->sx + delta_x : ship->sx;

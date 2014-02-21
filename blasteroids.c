@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include "general.h"
 #include "spaceship.h"
+#include "blast.h"
 
 enum MYKEYS {
-  KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT
+  KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE
 };
 
 int main(int argc, char **argv) {
   ALLEGRO_DISPLAY *display = NULL;
   ALLEGRO_EVENT_QUEUE *event_queue = NULL;
   ALLEGRO_TIMER *timer = NULL;
-  bool key[4] = {false,false,false,false};
+  bool key[5] = {false,false,false,false,false};
   bool doexit = false;
   bool redraw = false;
   Spaceship * spaceship;
@@ -80,6 +81,10 @@ int main(int argc, char **argv) {
 	if(key[KEY_RIGHT]) {
 	  spaceship_move(spaceship, KEY_RIGHT);
 	}
+	if(key[KEY_SPACE]) {
+	  blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
+	}
+	blast_move();
 	redraw = true;
       }
       else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -100,6 +105,9 @@ int main(int argc, char **argv) {
 	case ALLEGRO_KEY_RIGHT:
 	  key[KEY_RIGHT] ^= 1;
 	  break;
+	case ALLEGRO_KEY_SPACE:
+	  key[KEY_SPACE] ^= 1;
+	  break;
 	default: break;
 	}
       }
@@ -108,16 +116,16 @@ int main(int argc, char **argv) {
 	redraw = false;
 	al_clear_to_color(al_map_rgb(0,0,0));
 	spaceship_draw(spaceship);
+	blast_draw();
 	al_flip_display();
       }
     }
 
   spaceship_destroy(spaceship);
+  blast_destroy();
   al_destroy_timer(timer);
   al_destroy_display(display);
   al_destroy_event_queue(event_queue);
   
   return 0;
 }
-
-

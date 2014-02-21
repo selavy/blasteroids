@@ -11,6 +11,8 @@
 #define FPS 40.0f
 /* Converts from RADIANS -> DEGREES */
 #define DEGREES(x) ((x)*(2*ALLEGRO_PI)/180.0f)
+#define ALIVE 0
+#define DEAD 1
 
 
 #endif
