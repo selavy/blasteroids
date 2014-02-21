@@ -123,20 +123,17 @@ void blast_draw() {
 }
 
 inline Blast * blast_get_first() {
-  printf("blast_get_first\n");
   curr = list;
   return (curr) ? curr->blast : NULL;
 }
 
 inline Blast * blast_next() {
-  printf("blast_next\n");
   curr = (curr) ? curr->next : NULL;
   return (curr) ? curr->blast : NULL;
 }
 
 void blast_remove_curr() {
   blist * tmp = (curr) ? curr->next : NULL;
-  printf("blast_remove_curr\n");
   if(!curr) return;
   if(list == curr) list = tmp;
   destroy(curr->blast);

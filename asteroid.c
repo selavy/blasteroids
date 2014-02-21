@@ -78,6 +78,9 @@ static int move(Asteroid * asteroid) {
 
 static Asteroid * asteroid_create() {
   Asteroid * asteroid = malloc(sizeof(*asteroid));
+  const int r = rand();
+  const int choice = r % 4;
+  
   if(!asteroid) {
     fputs("Unable to create new asteroid!\n", stderr);
     return NULL;
@@ -88,8 +91,25 @@ static Asteroid * asteroid_create() {
     srand(time(NULL));
   }
 
-  asteroid->sx = rand() % SCREEN_W;
-  asteroid->sy = rand() % SCREEN_H;
+  switch( choice ) {
+  case 0:
+    asteroid->sx = r % SCREEN_W;
+    asteroid->sy = 0;
+    break;
+  case 1:
+    asteroid->sx = r % SCREEN_W;
+    asteroid->sy = SCREEN_H;
+    break;
+  case 2:
+    asteroid->sx = 0;
+    asteroid->sy = r % SCREEN_H;
+    break;
+  case 3:
+    asteroid->sx = SCREEN_W;
+    asteroid->sy = r % SCREEN_H;
+    break;
+  }
+
   asteroid->heading = rand() % MAX_DEG;
   asteroid->twist = 0.0f;
   asteroid->rot_velocity = ROT_VELOCITY;
@@ -143,6 +163,37 @@ int asteroid_check_collision(float sx, float sy) {
   alist * n = list;
   while(n) {
     if((abs(n->asteroid->sx - sx) < 30.0f) && (abs(n->asteroid->sy - sy) < 30.0f)) {
+      /* break the asteroid into 2 pieces */
+      if( n->asteroid->scale != 0.5f ) {
+	Asteroid *first, *second;
+	first = asteroid_create();
+	second = asteroid_create();
+	if(first) {
+	  first->sx = n->asteroid->sx;
+	  first->sy = n->asteroid->sy;
+	  first->twist = n->asteroid->twist;
+	  first->heading = n->asteroid->heading + 30;
+	  first->scale = n->asteroid->scale * 0.5;
+	  add(first);
+	}
+	if(second) {
+	  second->sx = n->asteroid->sx;
+	  second->sy = n->asteroid->sy;
+	  second->twist = n->asteroid->twist;
+	  second->heading = n->asteroid->heading - 30;
+	  second->scale = n->asteroid->scale * 0.5;
+	  add(second);
+	}
+      }
+
+      /* remove the current asteroid */
+      alist * tmp = n->next;
+      if(list == n) list = tmp;
+      destroy(n->asteroid);
+      if(n->prev) n->prev->next = n->next;
+      if(n->next) n->next->prev = n->prev;
+      free(n);
+      n = tmp;
       return HIT;
     }
     n = n->next;

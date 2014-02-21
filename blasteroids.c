@@ -8,6 +8,7 @@
 
 #define MAX_STR_LEN 256
 #define MAX_LIVES 3
+#define HIT_SCORE 100
 
 enum MYKEYS {
   KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE
@@ -37,6 +38,9 @@ int main(int argc, char **argv) {
   bool redraw = false;
   bool immortal = false;
   int immortal_counter = 0;
+  int asteroid_counter = 0;
+  float asteroid_rate = FPS/2.0f;
+  int increase_rate_counter = 0;
   Spaceship * spaceship;
 
   if(!al_init()) {
@@ -122,15 +126,28 @@ int main(int argc, char **argv) {
 	  }
 	  if(key[KEY_SPACE]) {
 	    blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
-	    score += 10;
+	    score--;
 	  }
 	  
 	  if(immortal) {
 	    immortal_counter++;
 	    if(immortal_counter >= FPS*5) {
+	      spaceship->color = al_map_rgb(255, 255, 255);
 	      immortal = false;
 	    }
 	  }
+
+	  asteroid_counter++;
+	  if(asteroid_counter > asteroid_rate) {
+	    asteroid_counter = 0;
+	    asteroid_add();
+	  }
+
+	  increase_rate_counter++;
+	  if(increase_rate_counter > FPS*10) {
+	    asteroid_rate /= 2;
+	  }
+
 	  blast_move();
 	  asteroid_move();
 	}
@@ -141,7 +158,6 @@ int main(int argc, char **argv) {
       }
       else if((ev.type == ALLEGRO_EVENT_KEY_DOWN) ||
 	      (ev.type == ALLEGRO_EVENT_KEY_UP)) {
-	asteroid_add();
 	switch(ev.keyboard.keycode) {
 	case ALLEGRO_KEY_UP:
 	  key[KEY_UP] ^= 1;
@@ -177,6 +193,7 @@ int main(int argc, char **argv) {
 	    if(asteroid_check_collision(spaceship->sx, spaceship->sy) == HIT) {
 	      lose_life();
 	      immortal = true;
+	      spaceship->color = al_map_rgb(255, 0, 0);
 	      immortal_counter = 0;
 	      spaceship_destroy(spaceship);
 	      spaceship = spaceship_create();
@@ -212,7 +229,7 @@ void score_draw(ALLEGRO_FONT * font) {
   al_identity_transform(&transform);
   al_use_transform(&transform);
   sprintf(score_str,"Score: %i",score);
-  al_draw_text(font, al_map_rgb(255,255,255), SCREEN_W / 6, 0, ALLEGRO_ALIGN_CENTRE,score_str);
+  al_draw_text(font, al_map_rgb(255,255,255), 110, 0, ALLEGRO_ALIGN_CENTRE,score_str);
   al_use_transform(&old);
 }
 
@@ -222,7 +239,7 @@ void lives_init() {
     ships_left[i] = spaceship_create();
     if(!ships_left[i]) continue;
     ships_left[i]->sy = 50;
-    ships_left[i]->sx = i * 30 + 20;
+    ships_left[i]->sx = i * 30 + 25;
   }    
 }
 
@@ -260,6 +277,7 @@ void check_blast_hits() {
   Blast * b = blast_get_first();
   while(b) {
     if(asteroid_check_collision(b->sx, b->sy) == HIT) {
+      score += HIT_SCORE;
       blast_remove_curr();
     }
     b = blast_next();
