@@ -25,6 +25,7 @@ void lives_destroy();
 void lives_draw();
 void lose_life();
 void draw_gameover_message(ALLEGRO_FONT * font);
+void check_blast_hits();
 
 int main(int argc, char **argv) {
   ALLEGRO_DISPLAY *display = NULL;
@@ -181,6 +182,8 @@ int main(int argc, char **argv) {
 	      spaceship = spaceship_create();
 	    }
 	  }
+
+	  check_blast_hits();
 	  spaceship_draw(spaceship);
 	  lives_draw();
 	  blast_draw();
@@ -251,4 +254,14 @@ void draw_gameover_message(ALLEGRO_FONT * font) {
   sprintf(score_str, "Score: %d", score);
   al_draw_text(font, al_map_rgb(255,255,255), SCREEN_W / 2, SCREEN_H / 2, ALLEGRO_ALIGN_CENTRE, score_str);
   al_use_transform(&old);
+}
+
+void check_blast_hits() {
+  Blast * b = blast_get_first();
+  while(b) {
+    if(asteroid_check_collision(b->sx, b->sy) == HIT) {
+      blast_remove_curr();
+    }
+    b = blast_next();
+  }
 }

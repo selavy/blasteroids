@@ -20,5 +20,8 @@ void blast_fire(float sx, float sy, float heading);
 void blast_destroy();
 void blast_move();
 void blast_draw();
+inline Blast * blast_get_first();
+inline Blast * blast_next();
+void blast_remove_curr();
 
 #endif

@@ -10,6 +10,7 @@ typedef struct _blast_list {
 } blist;
 
 static blist * list = NULL;
+static blist * curr = NULL;
 static void add( Blast * blast );
 /************************************/
 
@@ -36,7 +37,7 @@ static void destroy(Blast * blast) {
 }
 
 static int move(Blast * blast) {
-  const float theta = DEGREES( blast->heading );
+  const float theta = DEGREES(blast->heading);
   blast->sx += BLAST_SPEED * sin(theta);
   blast->sy -= BLAST_SPEED * cos(theta);
 
@@ -56,7 +57,7 @@ static void draw(Blast * blast) {
 
 static void add( Blast * blast ) {
   if(!blast) return;
-  if( list == NULL ) {
+  if(list == NULL) {
     list = malloc(sizeof(*list));
     if(!list) {
       fputs("Unable to allocate memory for list!\n", stderr);
@@ -88,7 +89,7 @@ void blast_fire(float sx, float sy, float heading) {
 void blast_destroy() {
   blist * n = list;
   blist * t;
-  while(n != NULL) {
+  while(n) {
     destroy(n->blast);
     t = n->next;
     free(n);
@@ -98,7 +99,7 @@ void blast_destroy() {
 
 void blast_move() {
   blist * n = list;
-  while(n != NULL) {
+  while(n) {
     if(!move(n->blast)) {
       blist * tmp = n->next;
       /* if n is the head of the list, reset list to n->next */
@@ -119,4 +120,28 @@ void blast_draw() {
     draw(n->blast);
     n = n->next;
   }
+}
+
+inline Blast * blast_get_first() {
+  printf("blast_get_first\n");
+  curr = list;
+  return (curr) ? curr->blast : NULL;
+}
+
+inline Blast * blast_next() {
+  printf("blast_next\n");
+  curr = (curr) ? curr->next : NULL;
+  return (curr) ? curr->blast : NULL;
+}
+
+void blast_remove_curr() {
+  blist * tmp = (curr) ? curr->next : NULL;
+  printf("blast_remove_curr\n");
+  if(!curr) return;
+  if(list == curr) list = tmp;
+  destroy(curr->blast);
+  if(curr->prev) curr->prev->next = curr->next;
+  if(curr->next) curr->next->prev = curr->prev;
+  free(curr);
+  curr = tmp;
 }
