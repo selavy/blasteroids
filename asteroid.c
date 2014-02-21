@@ -107,8 +107,8 @@ void asteroid_add() {
 void asteroid_destroy() {
   alist * n = list;
   alist * t;
-  while( n != NULL ) {
-    destroy( n->asteroid );
+  while(n) {
+    destroy(n->asteroid);
     t = n->next;
     free(n);
     n = t;
@@ -117,7 +117,7 @@ void asteroid_destroy() {
 
 void asteroid_move() {
   alist * n = list;
-  while(n != NULL) {
+  while(n) {
     if(!move(n->asteroid)) {
       alist * tmp = n->next;
       if(list == n) list = n->next;
@@ -133,8 +133,19 @@ void asteroid_move() {
 
 void asteroid_draw() {
   alist * n = list;
-  while(n != NULL) {
+  while(n) {
     draw(n->asteroid);
     n = n->next;
   }
+}
+
+int asteroid_check_collision(float sx, float sy) {
+  alist * n = list;
+  while(n) {
+    if((abs(n->asteroid->sx - sx) < 30.0f) && (abs(n->asteroid->sy - sy) < 30.0f)) {
+      return HIT;
+    }
+    n = n->next;
+  }
+  return MISS;
 }

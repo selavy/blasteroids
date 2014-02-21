@@ -23,5 +23,6 @@ void asteroid_add();
 void asteroid_destroy();
 void asteroid_move();
 void asteroid_draw();
+int asteroid_check_collision(float sx, float sy);
 
 #endif

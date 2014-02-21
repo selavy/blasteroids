@@ -17,12 +17,14 @@ int score = 0;
 Spaceship * ships_left[MAX_LIVES] = {NULL, NULL, NULL};
 int lives = MAX_LIVES;
 char score_str[MAX_STR_LEN];
+bool gameover = false;
 
 void score_draw(ALLEGRO_FONT * font);
 void lives_init();
 void lives_destroy();
 void lives_draw();
 void lose_life();
+void draw_gameover_message(ALLEGRO_FONT * font);
 
 int main(int argc, char **argv) {
   ALLEGRO_DISPLAY *display = NULL;
@@ -33,6 +35,7 @@ int main(int argc, char **argv) {
   bool doexit = false;
   bool redraw = false;
   Spaceship * spaceship;
+  
 
 
   if(!al_init()) {
@@ -103,25 +106,26 @@ int main(int argc, char **argv) {
       al_wait_for_event(event_queue, &ev);
       
       if(ev.type == ALLEGRO_EVENT_TIMER) {
-	if(key[KEY_UP]) {
-	  spaceship_move(spaceship, KEY_UP);
+	if(!gameover) {
+	  if(key[KEY_UP]) {
+	    spaceship_move(spaceship, KEY_UP);
+	  }
+	  if(key[KEY_DOWN]) {
+	    spaceship_move(spaceship, KEY_DOWN);
+	  }
+	  if(key[KEY_LEFT]) {
+	    spaceship_move(spaceship, KEY_LEFT);
+	  }
+	  if(key[KEY_RIGHT]) {
+	    spaceship_move(spaceship, KEY_RIGHT);
+	  }
+	  if(key[KEY_SPACE]) {
+	    blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
+	    score += 10;
+	  }
+	  blast_move();
+	  asteroid_move();
 	}
-	if(key[KEY_DOWN]) {
-	  spaceship_move(spaceship, KEY_DOWN);
-	}
-	if(key[KEY_LEFT]) {
-	  spaceship_move(spaceship, KEY_LEFT);
-	}
-	if(key[KEY_RIGHT]) {
-	  spaceship_move(spaceship, KEY_RIGHT);
-	}
-	if(key[KEY_SPACE]) {
-	  blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
-	  score += 10;
-	  lose_life();
-	}
-	blast_move();
-	asteroid_move();
 	redraw = true;
       }
       else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -146,6 +150,9 @@ int main(int argc, char **argv) {
 	case ALLEGRO_KEY_SPACE:
 	  key[KEY_SPACE] ^= 1;
 	  break;
+	case ALLEGRO_KEY_ENTER:
+	  if(gameover) doexit = true;
+	  break;
 	default: break;
 	}
       }
@@ -153,12 +160,23 @@ int main(int argc, char **argv) {
       if(redraw && al_is_event_queue_empty(event_queue)) {
 	redraw = false;
 	al_clear_to_color(al_map_rgb(0,0,0));
-	spaceship_draw(spaceship);
-	lives_draw();
-	blast_draw();
-	asteroid_draw();
-	score_draw(font);
-	al_flip_display();
+	if(gameover) {
+	  draw_gameover_message(font);
+	  al_flip_display();
+	}
+	else { /* game not over */
+	  if(asteroid_check_collision(spaceship->sx, spaceship->sy) == HIT) {
+	    lose_life();
+	    spaceship_destroy(spaceship);
+	    spaceship = spaceship_create();
+	  }
+	  spaceship_draw(spaceship);
+	  lives_draw();
+	  blast_draw();
+	  asteroid_draw();
+	  score_draw(font);
+	  al_flip_display();
+	}
       }
     }
 
@@ -210,4 +228,16 @@ void lives_draw() {
 
 inline void lose_life() {
   if(lives) lives--;
+  if(!lives) gameover = true;
+}
+
+void draw_gameover_message(ALLEGRO_FONT * font) {
+  ALLEGRO_TRANSFORM transform, old;
+  al_copy_transform(&old,al_get_current_transform());
+  al_identity_transform(&transform);
+  al_use_transform(&transform);
+  al_draw_text(font, al_map_rgb(255,255,255), SCREEN_W / 2, SCREEN_H / 4, ALLEGRO_ALIGN_CENTRE, "Game Over");
+  sprintf(score_str, "Score: %d", score);
+  al_draw_text(font, al_map_rgb(255,255,255), SCREEN_W / 2, SCREEN_H / 2, ALLEGRO_ALIGN_CENTRE, score_str);
+  al_use_transform(&old);
 }
