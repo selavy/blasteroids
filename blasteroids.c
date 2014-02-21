@@ -34,9 +34,9 @@ int main(int argc, char **argv) {
   bool key[5] = {false,false,false,false,false};
   bool doexit = false;
   bool redraw = false;
+  bool immortal = false;
+  int immortal_counter = 0;
   Spaceship * spaceship;
-  
-
 
   if(!al_init()) {
     fputs("failed to initialize allegro!\n", stderr);
@@ -123,6 +123,13 @@ int main(int argc, char **argv) {
 	    blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
 	    score += 10;
 	  }
+	  
+	  if(immortal) {
+	    immortal_counter++;
+	    if(immortal_counter >= FPS*5) {
+	      immortal = false;
+	    }
+	  }
 	  blast_move();
 	  asteroid_move();
 	}
@@ -165,10 +172,14 @@ int main(int argc, char **argv) {
 	  al_flip_display();
 	}
 	else { /* game not over */
-	  if(asteroid_check_collision(spaceship->sx, spaceship->sy) == HIT) {
-	    lose_life();
-	    spaceship_destroy(spaceship);
-	    spaceship = spaceship_create();
+	  if(!immortal) {
+	    if(asteroid_check_collision(spaceship->sx, spaceship->sy) == HIT) {
+	      lose_life();
+	      immortal = true;
+	      immortal_counter = 0;
+	      spaceship_destroy(spaceship);
+	      spaceship = spaceship_create();
+	    }
 	  }
 	  spaceship_draw(spaceship);
 	  lives_draw();
