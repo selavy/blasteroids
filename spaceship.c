@@ -9,7 +9,7 @@ Spaceship * spaceship_create() {
   spaceship->sy = SCREEN_H / 2.0f;
   spaceship->heading = 0;
   spaceship->speed = 0;
-  spaceship->gone = 0;
+  spaceship->gone = ALIVE;
   spaceship->color = al_map_rgb(255, 255, 255);
   return spaceship;
 }
@@ -20,6 +20,7 @@ void spaceship_destroy(Spaceship *ship) {
 
 void spaceship_draw(Spaceship *s) {
   ALLEGRO_TRANSFORM transform;
+  if(s->gone == DEAD) return;
   al_identity_transform(&transform);
   al_rotate_transform(&transform, DEGREES(s->heading));
   al_translate_transform(&transform, s->sx, s->sy);

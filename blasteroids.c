@@ -3,19 +3,37 @@
 #include "spaceship.h"
 #include "asteroid.h"
 #include "blast.h"
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+
+#define MAX_STR_LEN 256
+#define MAX_LIVES 3
 
 enum MYKEYS {
   KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE
 };
 
+int score = 0;
+Spaceship * ships_left[MAX_LIVES] = {NULL, NULL, NULL};
+int lives = MAX_LIVES;
+char score_str[MAX_STR_LEN];
+
+void score_draw(ALLEGRO_FONT * font);
+void lives_init();
+void lives_destroy();
+void lives_draw();
+void lose_life();
+
 int main(int argc, char **argv) {
   ALLEGRO_DISPLAY *display = NULL;
   ALLEGRO_EVENT_QUEUE *event_queue = NULL;
   ALLEGRO_TIMER *timer = NULL;
+  ALLEGRO_FONT * font = NULL;
   bool key[5] = {false,false,false,false,false};
   bool doexit = false;
   bool redraw = false;
   Spaceship * spaceship;
+
 
   if(!al_init()) {
     fputs("failed to initialize allegro!\n", stderr);
@@ -24,6 +42,12 @@ int main(int argc, char **argv) {
 
   if(!al_init_primitives_addon()) {
     fputs("failed to initialize allegro primitives!\n", stderr);
+    exit(0);
+  }
+
+  al_init_font_addon();
+  if(!al_init_ttf_addon()) {
+    fputs("failed to initialize allegro ttf font addon!\n", stderr);
     exit(0);
   }
 
@@ -45,22 +69,31 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
+  font = al_load_ttf_font("Outlier.ttf",36,0);
+  if(!font) {
+    fputs("Unable to load font!\n", stderr);
+    al_destroy_display(display);
+    al_destroy_timer(timer);
+    exit(0);
+  }
+
   event_queue = al_create_event_queue();
   if(!event_queue) {
     fputs("failed to create event queue!\n", stderr);
+    al_destroy_font(font);
     al_destroy_display(display);
     al_destroy_timer(timer);
     exit(0);
   }
 
   spaceship = spaceship_create();
-
-  /* al setup */
+  lives_init();
   al_register_event_source(event_queue, al_get_display_event_source(display));
   al_register_event_source(event_queue, al_get_timer_event_source(timer));
   al_register_event_source(event_queue, al_get_keyboard_event_source());
   al_clear_to_color(al_map_rgb(0,0,0));
   spaceship_draw(spaceship);
+  score_draw(font);
   al_flip_display();
   al_start_timer(timer);
 
@@ -84,6 +117,8 @@ int main(int argc, char **argv) {
 	}
 	if(key[KEY_SPACE]) {
 	  blast_fire(spaceship->sx, spaceship->sy, spaceship->heading);
+	  score += 10;
+	  lose_life();
 	}
 	blast_move();
 	asteroid_move();
@@ -119,18 +154,60 @@ int main(int argc, char **argv) {
 	redraw = false;
 	al_clear_to_color(al_map_rgb(0,0,0));
 	spaceship_draw(spaceship);
+	lives_draw();
 	blast_draw();
 	asteroid_draw();
+	score_draw(font);
 	al_flip_display();
       }
     }
 
+  lives_destroy();
   spaceship_destroy(spaceship);
   blast_destroy();
   asteroid_destroy();
+  al_destroy_font(font);
   al_destroy_timer(timer);
   al_destroy_display(display);
   al_destroy_event_queue(event_queue);
   
   return 0;
+}
+
+void score_draw(ALLEGRO_FONT * font) {
+  ALLEGRO_TRANSFORM transform, old;
+  al_copy_transform(&old,al_get_current_transform());
+  al_identity_transform(&transform);
+  al_use_transform(&transform);
+  sprintf(score_str,"Score: %i",score);
+  al_draw_text(font, al_map_rgb(255,255,255), SCREEN_W / 6, 0, ALLEGRO_ALIGN_CENTRE,score_str);
+  al_use_transform(&old);
+}
+
+void lives_init() {
+  int i;
+  for(i = 0; i < MAX_LIVES; ++i) {
+    ships_left[i] = spaceship_create();
+    if(!ships_left[i]) continue;
+    ships_left[i]->sy = 50;
+    ships_left[i]->sx = i * 30 + 20;
+  }    
+}
+
+void lives_destroy() {
+  int i;
+  for(i = 0; i < MAX_LIVES; ++i) {
+    spaceship_destroy(ships_left[i]);
+  }
+}
+
+void lives_draw() {
+  int i;
+  for(i = 0; i < lives; ++i) {
+    if(ships_left[i]) spaceship_draw(ships_left[i]);
+  }
+}
+
+inline void lose_life() {
+  if(lives) lives--;
 }

@@ -2,7 +2,8 @@ CC = gcc
 CFLAGS = -Wall -Werror -g
 ALLEGRO = -lallegro
 PRIMITIVES = -lallegro_primitives
-LIBS = $(ALLEGRO) $(PRIMITIVES)
+FONT = -lallegro_font -lallegro_ttf
+LIBS = $(ALLEGRO) $(PRIMITIVES) $(FONT)
 
 OBJS = blasteroids.o spaceship.o blast.o asteroid.o
 HEADERS = general.h
