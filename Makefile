@@ -22,8 +22,10 @@ asteroid.o: asteroid.c asteroid.h
 	$(CC) $(CFLAGS) $(INC) -c asteroid.c $(LIBS)
 ./allegro-5.0.10:
 	tar -xvzf allegro-5.0.10.tar.gz
-./allegro: allegro-5.0.10
+./allegro: allegro-5.0.10 libpath
 	(cd allegro-5.0.10; mkdir Build; cd ./Build; cmake ..; make; make install DESTDIR=../../allegro)
+.PHONY:libpath
+libpath:
 	export LD_LIBRARY_PATH=./allegro/usr/local/lib:$LD_LIBRARY_PATH
 .PHONY: clean
 clean:
